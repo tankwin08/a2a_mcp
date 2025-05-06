@@ -1,0 +1,12 @@
+[project]
+name = "a2a-mcp"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "python-a2a[all]>=0.5.4",
+    "python-dotenv>=1.1.0",
+    "requests>=2.32.3",
+    "yfinance>=0.2.58",
+]
