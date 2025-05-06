@@ -28,11 +28,14 @@ def interactive_session(client):
             print("Sending to assistant...")
             response = client.send_message(message)
             
-            # Display the response
-            print(f"\nAssistant: {response.content.text}")
+            # Display the response - properly access the text content
+            if hasattr(response.content, 'text'):
+                print(f"\nAssistant: {response.content.text}")
+            else:
+                print(f"\nAssistant: {str(response.content)}")
             
         except Exception as e:
-            print(f"Error: {e}")
+            print(f"Error: {str(e)}")
             print("Please try again or type 'exit' to quit.")
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Stock Assistant Client")

@@ -6,18 +6,15 @@ import sys
 import threading
 import time
 import socket
-
 # Global flag for graceful shutdown
 running = True
 
 class YFinanceAgent(A2AServer, FastMCPAgent):
-    """Agent that provides stock price information."""
-    
-    def __init__(self):
+    def __init__(self, mcp_endpoint="http://localhost:5002"):
         A2AServer.__init__(self)
         FastMCPAgent.__init__(
             self,
-            mcp_servers={"finance": "http://localhost:5002"}
+            mcp_servers={"finance": mcp_endpoint}
         )
     
     async def handle_message_async(self, message):
@@ -77,16 +74,13 @@ def signal_handler(signum, frame):
     running = False
     sys.exit(0)
 
-def run_agent():
-    """Run the YFinance agent with error handling"""
+def run_agent(mcp_endpoint="http://localhost:5002", agent_port=5004):
+    """Run the YFinance agent with configurable endpoints"""
     try:
-        agent = YFinanceAgent()
-        agent_port = 5004  # Using port 5004 for the agent
-        
+        agent = YFinanceAgent(mcp_endpoint)
         if is_port_in_use(agent_port):
             print(f"Warning: Port {agent_port} is already in use!")
             return
-            
         print(f"Starting YFinance agent on port {agent_port}")
         run_server(agent, port=agent_port)
     except Exception as e:
@@ -99,7 +93,17 @@ if __name__ == "__main__":
     signal.signal(signal.SIGTERM, signal_handler)
 
     # Start agent in background thread
-    agent_thread = threading.Thread(target=run_agent, daemon=True)
+    import argparse
+    parser = argparse.ArgumentParser(description="YFinance Stock Agent")
+    parser.add_argument("--mcp-endpoint", default="http://localhost:5002",
+                      help="MCP server endpoint")
+    parser.add_argument("--port", type=int, default=5004,
+                      help="Agent port number")
+    args = parser.parse_args()
+    
+    agent_thread = threading.Thread(target=run_agent, 
+                                  args=(args.mcp_endpoint, args.port),
+                                  daemon=True)
     agent_thread.start()
 
     # Wait for agent to start

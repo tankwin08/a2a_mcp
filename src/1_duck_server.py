@@ -23,24 +23,43 @@ def search_ticker(company_name: str) -> str:
     response = requests.get(url)
     data = response.json()
     
-    # Extract ticker from results
-    # Look for patterns like "NYSE: AAPL" or "NASDAQ: MSFT"
-    text = data.get("Abstract", "")
-    ticker_match = re.search(r'(?:NYSE|NASDAQ):\s*([A-Z]+)', text)
-    if ticker_match:
-        return ticker_match.group(1)
+    # Search in multiple fields
+    search_fields = [
+        data.get("Abstract", ""),
+        data.get("Definition", ""),
+        data.get("RelatedTopics", [{}])[0].get("Text", "")
+    ]
+    
+    # Look for ticker patterns in all fields
+    for text in search_fields:
+        # Look for various ticker formats
+        patterns = [
+            r'(?:NYSE|NASDAQ):\s*([A-Z]{1,5})',  # NYSE: AAPL or NASDAQ: MSFT
+            r'ticker(?:\s+symbol)?\s+(?:is\s+)?([A-Z]{1,5})',  # ticker symbol is AAPL
+            r'(?:trading|trade)\s+(?:as|under)\s+([A-Z]{1,5})',  # trading as AAPL
+            r'\(([A-Z]{1,5})\)'  # (AAPL)
+        ]
+        
+        for pattern in patterns:
+            ticker_match = re.search(pattern, text, re.I)
+            if ticker_match:
+                return ticker_match.group(1)
     
     # Fall back to common tickers for demo purposes
-    if company_name.lower() == "apple":
-        return "AAPL"
-    elif company_name.lower() == "microsoft":
-        return "MSFT"
-    elif company_name.lower() == "google" or company_name.lower() == "alphabet":
-        return "GOOGL"
-    elif company_name.lower() == "amazon":
-        return "AMZN"
-    elif company_name.lower() == "tesla":
-        return "TSLA"
+    common_tickers = {
+        "apple": "AAPL",
+        "microsoft": "MSFT",
+        "google": "GOOGL",
+        "alphabet": "GOOGL",
+        "amazon": "AMZN",
+        "tesla": "TSLA",
+        "meta": "META",
+        "facebook": "META"
+    }
+    
+    company_lower = company_name.lower()
+    if company_lower in common_tickers:
+        return common_tickers[company_lower]
     
     return f"Could not find ticker for {company_name}"
 
