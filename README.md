@@ -41,14 +41,16 @@ The system consists of three main components:
 ## Installation
 
 1. Clone the repository
-2. Create a virtual environment:
+2. Create a virtual environment using uv:
 ```bash
-python -m venv venv
+uv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 3. Install dependencies:
 ```bash
-pip install .
+uv install 
+
+uv add package-name
 ```
 
 ## Configuration
@@ -71,10 +73,10 @@ python run_servers.py
 python interact_client.py
 ```
 
-3. Example queries:
-   - "What's the stock price of Apple?"
-   - "How much is Microsoft trading for?"
-   - "Get the current price of Tesla stock"
+3. Example queries in your terminal:
+   - Apple
+   - Apple Inc
+   - amd
 
 ## Architecture Details
 
